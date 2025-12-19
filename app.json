@@ -1,29 +1,52 @@
 {
   "expo": {
-    "name": "creative-spark-v2",
-    "slug": "creative-spark-v2",
+    "name": "Creative Spark",
+    "slug": "creative-spark",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#6366f1"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ritik.creativespark",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to your camera to take photos for journal entries.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to add images to journal entries."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6366f1"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.ritik.creativespark",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs access to your photos to add them to journal entries.",
+          "cameraPermission": "The app needs access to your camera to take photos for journal entries."
+        }
+      ]
+    ],
+    "scheme": "creativespark"
   }
 }
