@@ -1,12 +1,12 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { supabase } from "./lib/supabase";
 
 console.log("Supabase URL:", process.env.EXPO_PUBLIC_SUPABASE_URL);
+
+// Initialize Supabase client
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 const CATEGORIES = ["Outdoors", "Creative", "Relax", "Social"];
 
@@ -20,6 +20,27 @@ const SUGGESTIONS = {
 export default function App() {
   const [screen, setScreen] = useState("intro");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [suggestion, setSuggestion] = useState("");
+  const [testData, setTestData] = useState(null);
+
+  useEffect(() => {
+    // Test connection to Supabase
+    async function testSupabaseConnection() {
+      try {
+        const { data, error } = await supabase.from("prompts").select("*");
+        if (error) {
+          console.error("Error fetching data from Supabase:", error);
+        } else {
+          console.log("Data fetched from Supabase:", data);
+          setTestData(data);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    }
+
+    testSupabaseConnection();
+  }, []);
 
   function toggleCategory(category) {
     setSelectedCategories((prev) =>
@@ -30,10 +51,10 @@ export default function App() {
   }
 
   function getSuggestion() {
-    const all = selectedCategories.flatMap(
-      (c) => SUGGESTIONS[c] || []
-    );
-    return all[Math.floor(Math.random() * all.length)];
+    const all = selectedCategories.flatMap((c) => SUGGESTIONS[c] || []);
+    const randomSuggestion = all[Math.floor(Math.random() * all.length)];
+    setSuggestion(randomSuggestion);
+    setScreen("home");
   }
 
   return (
@@ -50,52 +71,57 @@ export default function App() {
             style={styles.button}
             onPress={() => setScreen("categories")}
           >
-            <Text>Get Started</Text>
+            <Text style={styles.buttonText}>Get Started</Text>
           </Pressable>
         </>
       )}
 
-
       {screen === "categories" && (
         <>
-          <Text style={styles.title}>Choose categories</Text>
-
-          {CATEGORIES.map((cat) => (
+          <Text style={styles.title}>Choose Categories</Text>
+          {CATEGORIES.map((category) => (
             <Pressable
-              key={cat}
+              key={category}
               style={[
                 styles.option,
-                selectedCategories.includes(cat) && styles.selected,
+                selectedCategories.includes(category) && styles.selected,
               ]}
-              onPress={() => toggleCategory(cat)}
+              onPress={() => toggleCategory(category)}
             >
-              <Text>{cat}</Text>
+              <Text style={styles.optionText}>{category}</Text>
             </Pressable>
           ))}
-
-          <Pressable
-            style={[
-              styles.button,
-              selectedCategories.length === 0 && styles.disabled,
-            ]}
-            disabled={selectedCategories.length === 0}
-            onPress={() => setScreen("home")}
-          >
-            <Text>Continue</Text>
+          <Pressable style={styles.button} onPress={getSuggestion}>
+            <Text style={styles.buttonText}>Get Suggestion</Text>
           </Pressable>
         </>
       )}
 
       {screen === "home" && (
         <>
-          <Text style={styles.title}>Your suggestion</Text>
-          <Text style={styles.text}>{getSuggestion()}</Text>
-
+          <Text style={styles.title}>Your Suggestion</Text>
+          <Text style={styles.text}>{suggestion || "No suggestion yet!"}</Text>
           <Pressable
             style={styles.button}
             onPress={() => setScreen("categories")}
           >
-            <Text>Change categories</Text>
+            <Text style={styles.buttonText}>Categories</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => setScreen("profile")}
+          >
+            <Text style={styles.buttonText}>Profile</Text>
+          </Pressable>
+        </>
+      )}
+
+      {screen === "profile" && (
+        <>
+          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.text}>This is a placeholder for profile info.</Text>
+          <Pressable style={styles.button} onPress={() => setScreen("home")}>
+            <Text style={styles.buttonText}>Back to Home</Text>
           </Pressable>
         </>
       )}
@@ -108,32 +134,41 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     justifyContent: "center",
+    backgroundColor: "#FFFFFF", // White background
   },
   title: {
     fontSize: 28,
     marginBottom: 12,
+    color: "#000000", // Black text
+    fontWeight: "600",
   },
   text: {
     fontSize: 16,
     marginBottom: 24,
+    color: "#000000", // Black text
   },
   option: {
     padding: 12,
     marginVertical: 6,
     borderWidth: 1,
+    borderColor: "#B7D1C3", // Sage Green as accent
     borderRadius: 6,
   },
   selected: {
-    backgroundColor: "#ddd",
+    backgroundColor: "#B7D1C3", // Sage Green for selected
+  },
+  optionText: {
+    color: "#000000", // Black text
   },
   button: {
     marginTop: 24,
     padding: 12,
-    backgroundColor: "#eee",
+    backgroundColor: "#BFD7EA", // Dusty Sky Blue as accent
     alignItems: "center",
     borderRadius: 6,
   },
-  disabled: {
-    opacity: 0.5,
+  buttonText: {
+    color: "#FFFFFF", // White text for buttons
+    fontWeight: "600",
   },
 });
