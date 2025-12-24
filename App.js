@@ -6,6 +6,8 @@ import {
   StyleSheet,
 } from "react-native";
 
+console.log("Supabase URL:", process.env.EXPO_PUBLIC_SUPABASE_URL);
+
 const CATEGORIES = ["Outdoors", "Creative", "Relax", "Social"];
 
 const SUGGESTIONS = {
